@@ -41,6 +41,7 @@ export default function Home() {
         body: JSON.stringify({
           amount,
           baseCurrency: selectedCountry,
+          cryptoCurrency: selectedCrypto
         }),
       });
       console.log('response', response);
@@ -100,7 +101,7 @@ export default function Home() {
         </div>
         <div className="flex flex-col space-y-1.5">
           <Label htmlFor="cryptocurrency">Selecciona Criptomoneda</Label>
-          <Select value={selectedCrypto} onChange={setSelectedCrypto}>
+          <Select value={selectedCrypto} onValueChange={setSelectedCrypto}>
             <SelectTrigger id="cryptocurrency">
               <SelectValue>{selectedCrypto}</SelectValue>
             </SelectTrigger>
