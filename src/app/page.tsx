@@ -22,9 +22,8 @@ import CountryFlag from "react-country-flag"; // Importar react-country-flag
 
 // Import for API calls
 import { useState, useEffect } from 'react';
-
 export default function Home() {
-  const [selectedCountry, setSelectedCountry] = React.useState("HNL");
+  const [selectedCountry, setSelectedCountry] = React.useState("HN");
   const [selectedCrypto, setSelectedCrypto] = React.useState("ETH");
   const [amount, setAmount] = React.useState("");
   const [convertedAmount, setConvertedAmount] = React.useState("");
@@ -52,7 +51,7 @@ export default function Home() {
 
       const data = await response.json();
       console.log('data', data);
-      setConvertedAmount(data);
+      setConvertedAmount(data.toString().substring(0,8));
     } catch (error) {
       console.log(error);
     } finally {
@@ -82,7 +81,7 @@ export default function Home() {
         </div>
         <div className="flex flex-col space-y-1.5">
           <Label htmlFor="country">Selecciona País</Label>
-          <Select value={selectedCountry} onChange={setSelectedCountry}>
+            <Select value={selectedCountry} onValueChange={setSelectedCountry}>
             <SelectTrigger id="country">
               <SelectValue>
                 <CountryFlag countryCode={selectedCountry} svg style={{ width: '2em', height: '2em' }} />
