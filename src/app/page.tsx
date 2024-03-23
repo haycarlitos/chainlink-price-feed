@@ -1,113 +1,142 @@
-import Image from "next/image";
+'use client'
+import * as React from "react";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import CountryFlag from "react-country-flag"; // Importar react-country-flag
+
+// Import for API calls
+import { useState, useEffect } from 'react';
 
 export default function Home() {
+  const [selectedCountry, setSelectedCountry] = React.useState("HNL");
+  const [selectedCrypto, setSelectedCrypto] = React.useState("ETH");
+  const [amount, setAmount] = React.useState("");
+  const [convertedAmount, setConvertedAmount] = React.useState("");
+  const [loading, setLoading] = React.useState(false);
+  const [error, setError] = React.useState(null);
+
+  const handleConvert = async () => {
+    setLoading(true);
+    setError(null);
+
+    try {
+      const response = await fetch("/api/convert", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          amount,
+          baseCurrency: selectedCountry,
+        }),
+      });
+      console.log('response', response);
+
+      if (!response.ok) {
+        throw new Error("Conversion failed");
+      }
+
+      const data = await response.json();
+      console.log('data', data);
+      setConvertedAmount(data);
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
-    <main className="flex min-h-screen flex-col items-center justify-between p-24">
-      <div className="z-10 max-w-5xl w-full items-center justify-between font-mono text-sm lg:flex">
-        <p className="fixed left-0 top-0 flex w-full justify-center border-b border-gray-300 bg-gradient-to-b from-zinc-200 pb-6 pt-8 backdrop-blur-2xl dark:border-neutral-800 dark:bg-zinc-800/30 dark:from-inherit lg:static lg:w-auto  lg:rounded-xl lg:border lg:bg-gray-200 lg:p-4 lg:dark:bg-zinc-800/30">
-          Get started by editing&nbsp;
-          <code className="font-mono font-bold">src/app/page.tsx</code>
-        </p>
-        <div className="fixed bottom-0 left-0 flex h-48 w-full items-end justify-center bg-gradient-to-t from-white via-white dark:from-black dark:via-black lg:static lg:h-auto lg:w-auto lg:bg-none">
-          <a
-            className="pointer-events-none flex place-items-center gap-2 p-8 lg:pointer-events-auto lg:p-0"
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            By{" "}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className="dark:invert"
-              width={100}
-              height={24}
-              priority
-            />
-          </a>
+    <div className="flex items-center justify-center min-h-screen bg-gray-100">
+<Card className="w-[350px] bg-white shadow-md rounded">
+  <CardHeader>
+    <CardTitle>Convertidor de Divisas</CardTitle>
+    <CardDescription>Convierte tu moneda local a criptomoneda fácilmente.</CardDescription>
+  </CardHeader>
+  <CardContent>
+    <form>
+      <div className="grid w-full gap-4">
+        <div className="flex flex-col space-y-1.5">
+          <Label htmlFor="amount">Cantidad</Label>
+          <Input
+            id="amount"
+            value={amount}
+            onChange={(e) => setAmount(e.target.value)}
+            placeholder="Ingresa la cantidad"
+            type="number"
+          />
+        </div>
+        <div className="flex flex-col space-y-1.5">
+          <Label htmlFor="country">Selecciona País</Label>
+          <Select value={selectedCountry} onChange={setSelectedCountry}>
+            <SelectTrigger id="country">
+              <SelectValue>
+                <CountryFlag countryCode={selectedCountry} svg style={{ width: '2em', height: '2em' }} />
+              </SelectValue>
+            </SelectTrigger>
+            <SelectContent position="popper">
+              <SelectItem value="BZ"><CountryFlag countryCode="BZ" svg style={{ width: '2em', height: '2em' }} /> Belice</SelectItem>
+              <SelectItem value="CR"><CountryFlag countryCode="CR" svg style={{ width: '2em', height: '2em' }} /> Costa Rica</SelectItem>
+              <SelectItem value="SV"><CountryFlag countryCode="SV" svg style={{ width: '2em', height: '2em' }} /> El Salvador</SelectItem>
+              <SelectItem value="GT"><CountryFlag countryCode="GT" svg style={{ width: '2em', height: '2em' }} /> Guatemala</SelectItem>
+              <SelectItem value="HN"><CountryFlag countryCode="HN" svg style={{ width: '2em', height: '2em' }} /> Honduras</SelectItem>
+              <SelectItem value="NI"><CountryFlag countryCode="NI" svg style={{ width: '2em', height: '2em' }} /> Nicaragua</SelectItem>
+              <SelectItem value="PA"><CountryFlag countryCode="PA" svg style={{ width: '2em', height: '2em' }} /> Panamá</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+        <div className="flex flex-col space-y-1.5">
+          <Label htmlFor="cryptocurrency">Selecciona Criptomoneda</Label>
+          <Select value={selectedCrypto} onChange={setSelectedCrypto}>
+            <SelectTrigger id="cryptocurrency">
+              <SelectValue>{selectedCrypto}</SelectValue>
+            </SelectTrigger>
+            <SelectContent position="popper">
+              <SelectItem value="USDT">USDT</SelectItem>
+              <SelectItem value="USDC">USDC</SelectItem>
+              <SelectItem value="ETH">ETH</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
       </div>
-
-      <div className="relative flex place-items-center before:absolute before:h-[300px] before:w-full sm:before:w-[480px] before:-translate-x-1/2 before:rounded-full before:bg-gradient-radial before:from-white before:to-transparent before:blur-2xl before:content-[''] after:absolute after:-z-20 after:h-[180px] after:w-full sm:after:w-[240px] after:translate-x-1/3 after:bg-gradient-conic after:from-sky-200 after:via-blue-200 after:blur-2xl after:content-[''] before:dark:bg-gradient-to-br before:dark:from-transparent before:dark:to-blue-700 before:dark:opacity-10 after:dark:from-sky-900 after:dark:via-[#0141ff] after:dark:opacity-40 before:lg:h-[360px] z-[-1]">
-        <Image
-          className="relative dark:drop-shadow-[0_0_0.3rem_#ffffff70] dark:invert"
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
-        />
+    </form>
+    {convertedAmount && (
+      <div className="mt-4">
+        <Label htmlFor="convertedAmount">Resultado: </Label>
+        <span>
+          {convertedAmount} {selectedCrypto}
+        </span>
       </div>
+    )}
+  </CardContent>
+  <CardFooter className="flex justify-between">
+          <Button variant="outline">Cancelar</Button>
+          <Button 
+          onClick={handleConvert}
+          disabled={loading || !amount}>Convertir</Button>
 
-      <div className="mb-32 grid text-center lg:max-w-5xl lg:w-full lg:mb-0 lg:grid-cols-4 lg:text-left">
-        <a
-          href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Docs{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Find in-depth information about Next.js features and API.
-          </p>
-        </a>
+  
+  </CardFooter>
 
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Learn{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Learn about Next.js in an interactive course with&nbsp;quizzes!
-          </p>
-        </a>
+        
+</Card>
 
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Templates{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Explore starter templates for Next.js.
-          </p>
-        </a>
 
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Deploy{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50 text-balance`}>
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
-      </div>
-    </main>
+
+    </div>
   );
 }
